@@ -1,6 +1,6 @@
-'F5 Load Balancer Deployment Scripts'
+F5 Load Balancer Deployment Scripts
 =====================================
-''Paul Graydon & Matt Taniguchi''
+Paul Graydon & Matt Taniguchi
 
 These scripts were born out of a need to manage a pair of F5 load balancers
 in something hopefully approaching a practical approach amongst a team.
@@ -22,7 +22,7 @@ However we have over 80 vhosts, with over 100 different applications behind
 them, with their own routing quirks. That results in our main iRules script
 weighing in at around 1000 lines.
 
-'Using the scripts'
+==Using the scripts==
 
 There are three main things these scripts manage:
 - Pools  (the back-end servers)
@@ -32,7 +32,7 @@ There are three main things these scripts manage:
 The flat files for all three exist under the pools, monitors, and irules
 subdirectories respectively.
 
-''Pools and Monitors''
+=Pools and Monitors=
 
 In these scripts monitors and pools are explicitly tied together by naming
 convention. They must share the same name, with just _pool and _health being
@@ -42,7 +42,7 @@ and the second half to refer to the webapp (monkey) so that it's easy to find
 them for any changes.  For now you can only have one health check associated
 with an application.
 
-''iRules''
+=iRules=
 
 We split the irules subdirectory into multiple subdirectories.  The name of
 the subdirectory is used to define the name of the generated iRule.
@@ -58,7 +58,7 @@ That does mean every file in the subdirectory must be capable of standing
 on it's own as part of a case statement.
 
 
-'Configuration'
+=Configuration=
 You will need to adjust the f5.cfg file.  In there you specify things like
 authentication credentials for the F5, along with various defaults for pools
 and monitors.
@@ -69,7 +69,7 @@ we've notice that it's had a detrimental impact on monitoring and performance.
 Deploying against the spare, and then syncing to the main avoids the problem.
 
 
-'Things to note'
+==Things to note==
 Some of these are covered above, but by way of tl;dr:
 
 - Point these scripts at your hot spare, not your live LB.
