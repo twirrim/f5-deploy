@@ -1,0 +1,6 @@
+[Health]
+type=TTYPE_HTTP
+send_string=GET /bar/index.html HTTP/1.1\r\nHost: foo.bar.baz\r\nConnection: Close\r\n\r\n
+receive_string=Bar
+interval=20
+timeout=60

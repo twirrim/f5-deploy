@@ -1,0 +1,6 @@
+[Health]
+type=TTYPE_HTTP
+send_string=GET /monkey/version HTTP/1.1\r\nHost: foo.bar.baz\r\nConnection: Close\r\n\r\n
+receive_string=Simian
+interval=90
+timeout=180

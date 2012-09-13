@@ -1,0 +1,81 @@
+'F5 Load Balancer Deployment Scripts'
+=====================================
+''Paul Graydon & Matt Taniguchi''
+
+These scripts were born out of a need to manage a pair of F5 load balancers
+in something hopefully approaching a practical approach amongst a team.
+
+We were migrating away from an Apache/mod_proxy based, fairly organically
+grown setup, and the transition gave us a chance to clean things up a little.
+
+The ultimate aim is to make it easy to deploy changes with some automated tests,
+enforce certain standards and require all deployed changes to be checked in to
+the VCS (in our case we use CVS).
+
+F5's BIG-IP load balancers are incredibly flexible courtesy of their iRules.
+iRules are essentially a TK based scripts, and F5 have provided a lot of
+commands, settings and configuration options in them.
+We could use one script per vhost but in our testing we found that sticking
+to a monolithic script resulted in much better performance.
+
+However we have over 80 vhosts, with over 100 different applications behind
+them, with their own routing quirks. That results in our main iRules script
+weighing in at around 1000 lines.
+
+'Using the scripts'
+
+There are three main things these scripts manage:
+- Pools  (the back-end servers)
+- Monitors (the health checks)
+- iRules (the glue!)
+
+The flat files for all three exist under the pools, monitors, and irules
+subdirectories respectively.
+
+''Pools and Monitors''
+
+In these scripts monitors and pools are explicitly tied together by naming
+convention. They must share the same name, with just _pool and _health being
+different. e.g. in the included examples, foo-monkey_health and foo-monkey_pool.
+In our case we use the first half of the name to refer to the subdomain (foo)
+and the second half to refer to the webapp (monkey) so that it's easy to find
+them for any changes.  For now you can only have one health check associated
+with an application.
+
+''iRules''
+
+We split the irules subdirectory into multiple subdirectories.  The name of
+the subdirectory is used to define the name of the generated iRule.
+In the included example, there are two directories, http and ssl, which generate
+http_rule and ssl_rule respectively.  The iRule deployment process defines a
+header and a footer which include our common aspects, before starting and
+closing a switch statement based on a glob of the HTTP::host parameter.
+We split each possible vhost (HTTP::host) into its own file, but you could
+choose to have multiple vhosts in a single file.
+To aid in troubleshooting, each file is tested individually by way of a
+temporary rule, and the script will abort if it hits a syntax error.
+That does mean every file in the subdirectory must be capable of standing
+on it's own as part of a case statement.
+
+
+'Configuration'
+You will need to adjust the f5.cfg file.  In there you specify things like
+authentication credentials for the F5, along with various defaults for pools
+and monitors.
+
+It is important that the hostname be set to the IP address of your a hot spare
+F5 Load balancer.  Whenever we've run these scripts against the live balancer
+we've notice that it's had a detrimental impact on monitoring and performance.
+Deploying against the spare, and then syncing to the main avoids the problem.
+
+
+'Things to note'
+Some of these are covered above, but by way of tl;dr:
+
+- Point these scripts at your hot spare, not your live LB.
+- Pool and monitor files must share the same name, with only the suffix changed
+- Each iRule file must stand alone as part of a case statement, or it will
+fail the basic syntax checking the scripts do.
+- Only HTTP, HTTPS and TCP_HALF_OPEN checks have been implemented so far.
+- If you're not using CVS, drop out the entire try/except block in the
+if __name__ == "__main__" sections of the 3 deploy scripts.
